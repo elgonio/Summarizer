@@ -1,4 +1,11 @@
+/*
+    TODO:
+    clean up useless code
+    fix the issue with splits on .
+ */
 package com.company;
+
+import com.sun.javafx.collections.MappingChange;
 
 import java.util.*;
 
@@ -21,19 +28,60 @@ public class Main {
                 "The producers will be hoping for more success with this project than the version of Dracula made by Downton Abbey producers Carnival Films in 2013 starring Jonathan Rhys Meyers. The ten-episode run aired on NBC and Sky Living in the UK and was axed after one series.\n" +
                 "As for the next series of Sherlock, a production source said: “Sherlock will return when Sherlock returns.”";
 
-        ArrayList<String > w = getKeyWords(s);
 
-        HashMap<String,Integer> phrase_map = new HashMap<String,Integer>();
-
-
-
-        for (String h : w)
-        {
-            System.out.println(h);
-        }
+        summarize(s);
     }
 
-    private static ArrayList<String> getKeyWords(String text)
+    private static void summarize(String text)
+    {
+        int reduction_factor = 2;
+        HashMap<String, Integer> sentences = calculate_scores(text);
+        ArrayList<Integer> numbers = new ArrayList<Integer>();
+        for(Map.Entry entry: sentences.entrySet())
+        {
+            numbers.add((int)entry.getValue());
+        }
+        Collections.sort(numbers);
+        int limit = numbers.get(numbers.size()/reduction_factor);
+        System.out.println("numbers size: " + String.valueOf(numbers.size()));
+        System.out.println("sentences size: " + String.valueOf(sentences.size()));
+
+        for(Map.Entry entry: sentences.entrySet())
+        {
+            if ((int)entry.getValue() > limit)
+            {
+                System.out.println(entry.getKey());
+            }
+        }
+
+    }
+
+    private static HashMap<String,Integer> calculate_scores(String text)
+    {
+        String[] raw_sentences = text.split("\\.");
+        System.out.println("raw_sentences size: " + String.valueOf(raw_sentences.length));
+        HashMap<String,Integer> sentences = new HashMap<String, Integer>();
+        HashMap<String,Integer> phrases_scores = getKeyWords_map(text);
+
+        // this block calculates the scores of each sentence and stores them
+        for (String sentence : raw_sentences)
+        {
+            int score = 0;
+            ArrayList<String> sentence_phrases = getAllPhrases(sentence);
+
+            for (String phrase: sentence_phrases)
+            {
+                System.out.println("searching for phrase: " + phrase);
+                score = score + phrases_scores.get(phrase);
+            }
+
+            sentences.put(sentence,score);
+        }
+
+        return sentences;
+    }
+
+    private static ArrayList<String> getAllPhrases(String text)
     {
         String[] words = text.split(" ");
         ArrayList<String> phrases = new ArrayList<String>();
@@ -66,6 +114,19 @@ public class Main {
         }
 
         return result;
+    }
+
+    private static HashMap<String, Integer> getKeyWords_map(String text)
+    {
+        String[] words = text.split(" ");
+        HashMap<String, Integer> phrases = new HashMap<String, Integer>();
+
+        for (int v = 0 ; v < words.length; v++)
+        {
+            phrases.putAll(generate_n_word_phrases_map(v,text));
+        }
+
+        return phrases;
     }
 
     private static HashMap<String, Integer> generate_n_word_phrases_map(int n, String text)
