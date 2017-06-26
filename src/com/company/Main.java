@@ -102,7 +102,7 @@ public class Main {
 
     private static void summarize(String text)
     {
-        int reduction_factor = 2;
+        int reduction_factor = 10;
         ArrayList<String> output = new ArrayList<String>();
         HashMap<String, Integer> sentences = calculate_scores(text);
         ArrayList<Integer> numbers = new ArrayList<Integer>();
@@ -111,7 +111,7 @@ public class Main {
             numbers.add((int)entry.getValue());
         }
         Collections.sort(numbers);
-        int limit = numbers.get(numbers.size()/reduction_factor);
+        int limit = numbers.get(numbers.size() - (numbers.size()/reduction_factor));
 
         /*
         debugging stuuf
@@ -163,7 +163,7 @@ public class Main {
             }
 
             sentences.put(sentence,score);
-            System.out.println("calculating: " + String.valueOf(((float) counter/raw_sentences.length)*100) + "%");
+            //System.out.println("calculating: " + String.valueOf(((float) counter/raw_sentences.length)*100) + "%");
         }
 
         return sentences;
@@ -237,22 +237,20 @@ public class Main {
             StringBuilder phrase = new StringBuilder();
             for (int k = 0 ; k < n ; k++)
             {
-                phrase.append(" " + words[i+k]) ;
+                phrase.append(" ") ;
+                phrase.append(words[i+k]) ;
             }
 
             if (!phrase.toString().trim().equals(""))
             {
-                if (result.containsKey(phrase))
+                if (result.containsKey(phrase.toString()))
                 {
-                    result.put(phrase.toString(),result.get(phrase) + 1);
+                    result.put(phrase.toString(),result.get(phrase.toString()) + 1);
                 }else
                 {
                     result.put(phrase.toString(),1);
                 }
             }
-
-
-
             //System.out.println("generation: " + String.valueOf(((double)i/p)*100)  + "%");
         }
 
